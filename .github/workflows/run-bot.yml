@@ -6,14 +6,27 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v4
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.10'
-    - name: Install Dependencies
-      run: pip install requests
-    - name: Run Bot Script
-      run: python bot.py
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          pip install requests
+
+      - name: Run Bot Script
+        run: |
+          python bot.py
+
+      # هذه الخطوة هي التي تسحب التقرير وتحفظه لك لتحميله مباشرة
+      - name: Upload Execution Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: generated-accounts-report
+          path: execution_report.txt
