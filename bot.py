@@ -9,7 +9,7 @@ print("  [Auto-Bot] Advanced Automation Engine v2.0")
 print("="*45)
 
 # رابط الـ Worker الخاص بك الذي تم إنشاؤه مسبقاً
-WORKER_URL = "https://battlenet-mail-bot.kfn345345.workers.dev"
+WORKER_URL = "https://battlenet-mail-bot.kfn345345.workers.dev/"
 
 def generate_random_string(length=8):
     return "".join(random.choices(string.ascii_lowercase + string.digits, k=length))
