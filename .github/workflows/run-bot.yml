@@ -24,7 +24,7 @@ jobs:
         run: |
           python bot.py
 
-      # هذه الخطوة هي المسؤولة عن حفظ الملف ورفع الـ Artifact
+      # هذه الخطوة هي التي ستجلب الملفexecution_report.txt وترفعه لك
       - name: Upload Execution Report
         uses: actions/upload-artifact@v4
         with:
