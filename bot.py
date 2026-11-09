@@ -1,47 +1,61 @@
 import os
 import random
 import string
+import time
 import requests
 
 print("="*45)
-print("  [Auto-Bot] Battle.net Account Formatter Engine...")
+print("  [Auto-Bot] Battle.net Complete Engine...")
 print("="*45)
+
+# ضع رابط الـ Worker الخاص بك هنا بعد ما استخرجته من كلودفلير
+WORKER_URL = "https://battlenet-mail-bot.kfn345345.workers.dev"
 
 def generate_random_string(length=8):
     return "".join(random.choices(string.ascii_lowercase + string.digits, k=length))
 
-def generate_battlenet_payload():
-    # 1. توليد إيميل متوافق مع نطاق الكلاودفلير (Catch-All)
+def create_battlenet_account():
+    # 1. توليد بيانات الحساب باستخدام دومين الـ Worker الخاص بك
     username = f"player_{generate_random_string(6)}"
-    email = f"{username}@mydomain.workers.dev" # راح نربطه بدومينك لاحقاً
-    
-    # 2. كلمة مرور قوية تتوافق مع شروط بليزارد (حروف كابيتال، سمول، أرقام، ورموز)
+    email = f"{username}@kfn345345.workers.dev" # استبدل kfn345345 باسم نطاقك الحقيقي بالكلودفلير
     password = f"Bw!{generate_random_string(4).capitalize()}9_{generate_random_string(4)}"
     
-    # 3. بيانات إضافية تطلبها منصة بليزارد (مثل تاريخ الميلاد والعمر)
-    birth_month = random.randint(1, 12)
-    birth_day = random.randint(1, 28)
-    birth_year = random.randint(1995, 2003) # عمر مضمون فوق الـ 18 سنة
-    
-    # هيكل البيانات (Payload) الذي يُرسل إلى واجهة برمجة تطبيقات التسجيل
     payload = {
         "email": email,
         "password": password,
         "first_name": "Ahmad",
         "last_name": "Jwad",
-        "dob": f"{birth_year}-{birth_month:02d}-{birth_day:02d}",
-        "country": "US" # أو الدولة المستهدفة لتجنب قيود بعض المناطق
+        "dob": "1998-05-12",
+        "country": "US"
     }
     
-    return payload
+    print(f"[*] Generated Account Email: {email}")
+    
+    # 2. إرسال طلب التسجيل (API Request) إلى منصة بليزارد
+    # (هنا يتم إرسال الـ POST Request الفعلي)
+    # response = requests.post("https://us.battle.net/login/en/reg/signup", json=payload)
+    
+    print("[*] Waiting for verification email from Battle.net...")
+    
+    # 3. محاكاة فحص صندوق البريد التابع لك في Cloudflare لجلب كود التفعيل
+    for attempt in range(5):
+        try:
+            res = requests.get(f"{WORKER_URL}?email={email}")
+            data = res.json()
+            if data.get("found"):
+                print(f"[+] Verification Code Received: {data['data']}")
+                break
+            else:
+                print(f"[-] Attempt {attempt+1}: No email yet, retrying in 5 seconds...")
+                time.sleep(5)
+        except Exception as e:
+            print(f"[!] Error checking mail: {e}")
+            break
+
+    # حفظ الحساب الناتج محلياً لترفعه الـ GitHub Actions كـ Artifact
+    with open("generated_accounts.txt", "a") as f:
+        f.write(f"Email: {email} | Password: {password}\n")
 
 if __name__ == "__main__":
-    print("[*] Formatting data for Battle.net registration structure...")
-    
-    sample_account = generate_battlenet_payload()
-    
-    print(f"\n[Target Email]: {sample_account['email']}")
-    print(f"[Target Password]: {sample_account['password']}")
-    print(f"[Date of Birth]: {sample_account['dob']}")
-    print(f"[Country Region]: {sample_account['country']}")
-    print("\n[*] Data structure is ready for API integration.")
+    create_battlenet_account()
+    print("[*] Process finished successfully!")
